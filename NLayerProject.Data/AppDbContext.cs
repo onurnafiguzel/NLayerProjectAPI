@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using NLayerProject.Core.Models;
+using NLayerProject.Data.Configurations;
 
 namespace NLayerProject.Data
 {
@@ -17,6 +18,8 @@ namespace NLayerProject.Data
         public DbSet<Product> Products { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfiguration(new ProductConfiguration());
+            modelBuilder.ApplyConfiguration(new CategoryConfiguration());
         }
     }
 }
