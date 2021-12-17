@@ -14,10 +14,10 @@ namespace NLayerProject.Data.Repositories
         protected readonly DbContext _context;
         private readonly DbSet<TEntity> _dbSet;
 
-        public Repository(DbSet<TEntity> dbSet, DbContext context)
+        public Repository(DbContext context)
         {
-            _dbSet = dbSet;
             _context = context;
+            _dbSet = context.Set<TEntity>();
         }
 
         public async Task AddAsync(TEntity entity)
