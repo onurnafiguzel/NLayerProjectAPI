@@ -6,7 +6,7 @@ using NLayerProject.Core.Models;
 
 namespace NLayerProject.Core.Services
 {
-    public interface ICategorySerivce : IService<Category>
+    public interface ICategoryService : IService<Category>
     {
         Task<Category> GetWithProductsByIdAsync(int categoryId);
     }
