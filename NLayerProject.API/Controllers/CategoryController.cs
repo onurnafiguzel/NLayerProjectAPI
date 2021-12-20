@@ -51,5 +51,13 @@ namespace NLayerProject.API.Controllers
             var updatedCategory = _categoryService.Update(_mapper.Map<Category>(categoryDto));
             return NoContent();
         }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            var deletedCategory = _categoryService.GetByIdAsync(id).Result;
+            _categoryService.Remove(deletedCategory);
+            return NoContent();
+        }
     }
 }
