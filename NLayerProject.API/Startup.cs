@@ -9,11 +9,24 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using NLayerProject.API.DTOs;
+using NLayerProject.API.Filters;
+using NLayerProject.Core.Repositories;
+using NLayerProject.Core.Services;
 using NLayerProject.Core.UnitOfWorks;
 using NLayerProject.Data;
+using NLayerProject.Data.Repositories;
 using NLayerProject.Data.UnitOfWorks;
+using NLayerProject.Service.Services;
+using Newtonsoft.Json;
+using NLayerProject.API.Extensions;
 
 namespace NLayerProject.API
 {
@@ -29,6 +42,15 @@ namespace NLayerProject.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAutoMapper(typeof(Startup));
+            services.AddScoped<NotFoundFilter>();
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped(typeof(IService<>), typeof(Service<>));
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IProductService, ProductService>();
+
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
             services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlServer(Configuration["ConnectionStrings:SqlConStr"].ToString(), o =>
@@ -36,8 +58,18 @@ namespace NLayerProject.API
                     o.MigrationsAssembly("NLayerProject.Data");
                 });
             });
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            services.AddControllers(options =>
+            {
+                options.Filters.Add(new ValidationFilter());
+
+            });
+
             services.AddControllers();
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,6 +79,8 @@ namespace NLayerProject.API
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCustomException();
 
             app.UseHttpsRedirection();
 
