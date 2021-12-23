@@ -9,9 +9,14 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using NLayerProject.API.DTOs;
 using NLayerProject.API.Filters;
 using NLayerProject.Core.Repositories;
 using NLayerProject.Core.Services;
@@ -20,6 +25,7 @@ using NLayerProject.Data;
 using NLayerProject.Data.Repositories;
 using NLayerProject.Data.UnitOfWorks;
 using NLayerProject.Service.Services;
+using Newtonsoft.Json;
 
 namespace NLayerProject.API
 {
@@ -72,6 +78,27 @@ namespace NLayerProject.API
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseExceptionHandler(config =>
+            {
+                config.Run(async context =>
+                {
+                    context.Response.StatusCode = 500;
+                    context.Response.ContentType = "application/json";
+                    var error = context.Features.Get<IExceptionHandlerFeature>();
+
+                    if (error != null)
+                    {
+                        var ex = error.Error;
+
+                        ErrorDto errorDto = new ErrorDto();
+                        errorDto.Status = 500;
+                        errorDto.Errors.Add(ex.Message);
+
+                        await context.Response.WriteAsync(JsonConvert.SerializeObject(errorDto));
+                    }
+                });
+            });
 
             app.UseHttpsRedirection();
 
