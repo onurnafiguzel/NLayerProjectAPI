@@ -7,6 +7,7 @@ using AutoMapper;
 using NLayerProject.Core.Models;
 using NLayerProject.Core.Services;
 using NLayerProject.Web.DTOs;
+using NLayerProject.Web.Filters;
 
 namespace NLayerProject.Web.Controllers
 {
@@ -52,6 +53,7 @@ namespace NLayerProject.Web.Controllers
             return RedirectToAction("Index");
         }
 
+        [ServiceFilter(typeof(NotFoundFilter))]
         public IActionResult Delete(int id)
         {
             var category = _categoryService.GetByIdAsync(id).Result;
